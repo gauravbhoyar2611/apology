@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A little something for you 💌</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1e0633;
+    --bg2: #2d0a52;
+    --card-bg: rgba(100, 40, 160, 0.45);
+    --card-border: rgba(180, 100, 255, 0.3);
+    --pink: #e8478a;
+    --pink-glow: rgba(232, 71, 138, 0.4);
+    --text: #f5eeff;
+    --muted: rgba(220, 190, 255, 0.75);
+    --star: rgba(255, 255, 255, 0.8);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Nunito', sans-serif;
+    background: radial-gradient(ellipse at top, #3a0f6e 0%, #1e0633 55%, #0d0020 100%);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── Stars ── */
+  #stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d) ease-in-out infinite alternate;
+    animation-delay: var(--delay);
+  }
+  @keyframes twinkle {
+    from { opacity: 0.1; transform: scale(0.8); }
+    to   { opacity: 0.9; transform: scale(1.2); }
+  }
+
+  /* ── Screens ── */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    padding: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    text-align: center;
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+
+  /* ── Screen 1 — Welcome ── */
+  .ghost-wrap { position: relative; width: 120px; height: 130px; margin-bottom: 1.5rem; }
+  .ghost {
+    width: 110px; height: 110px;
+    background: radial-gradient(circle at 40% 35%, #ffffff, #e8d8ff);
+    border-radius: 55px 55px 40px 40px;
+    position: relative;
+    filter: drop-shadow(0 0 18px rgba(200,140,255,0.5));
+    animation: float 3s ease-in-out infinite;
+  }
+  .ghost::before { /* feet */
+    content: '';
+    position: absolute;
+    bottom: -14px; left: 0; right: 0;
+    height: 20px;
+    background: radial-gradient(circle at 17% 0, #e8d8ff 28%, transparent 28%),
+                radial-gradient(circle at 50% 0, #e8d8ff 28%, transparent 28%),
+                radial-gradient(circle at 83% 0, #e8d8ff 28%, transparent 28%);
+  }
+  .eye { position: absolute; width: 14px; height: 18px; background: #4a1a6e; border-radius: 50%; top: 42px; }
+  .eye.l { left: 30px; }
+  .eye.r { right: 30px; }
+  .eye::after { content: ''; position: absolute; width: 5px; height: 5px; background: white; border-radius: 50%; top: 3px; left: 3px; }
+  .cheek { position: absolute; width: 16px; height: 10px; background: rgba(255,150,150,0.55); border-radius: 50%; top: 58px; }
+  .cheek.l { left: 22px; }
+  .cheek.r { right: 22px; }
+  .hearts-float { position: absolute; top: 0; right: -8px; font-size: 18px; animation: floatHearts 2.5s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes floatHearts { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-12px) rotate(8deg)} }
+
+  .welcome-title { font-family: 'Dancing Script', cursive; font-size: clamp(2rem,7vw,3rem); font-weight: 700; margin-bottom: 0.4rem; }
+  .welcome-sub { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; }
+
+  /* ── Screen 2 — Loading ── */
+  .loading-label { font-size: 1rem; color: var(--muted); margin-bottom: 1.2rem; letter-spacing: 0.04em; }
+  .big-pct { font-family: 'Nunito', sans-serif; font-size: clamp(4rem,18vw,6.5rem); font-weight: 700; line-height: 1; background: linear-gradient(135deg, #ff8fce, #e8478a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .bar-wrap { width: min(320px,80vw); height: 12px; background: rgba(255,255,255,0.1); border-radius: 99px; margin-top: 1.5rem; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #c83ea8, #e8478a, #ff7abf); width: 0; transition: width 2s ease-out; }
+
+  /* ── Shared button ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: var(--pink);
+    color: white;
+    border: none; border-radius: 999px;
+    padding: 0.75rem 2.2rem;
+    font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 0 24px var(--pink-glow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin-top: 1.5rem;
+    text-decoration: none;
+  }
+  .btn:hover { transform: scale(1.06); box-shadow: 0 0 38px var(--pink-glow); }
+  .btn:active { transform: scale(0.97); }
+  .btn-ghost {
+    background: transparent;
+    border: 2px solid rgba(232,71,138,0.6);
+    color: var(--pink);
+    box-shadow: none;
+  }
+  .btn-ghost:hover { background: rgba(232,71,138,0.12); box-shadow: 0 0 20px var(--pink-glow); }
+
+  /* ── Screen 3 — Cards ── */
+  .reveal-title { font-family: 'Dancing Script', cursive; font-size: clamp(1.6rem,5vw,2.2rem); font-weight: 600; margin-bottom: 1.6rem; }
+  .cards-wrap { display: flex; flex-direction: column; gap: 14px; width: min(380px,88vw); }
+  .reveal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    min-height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.3s, box-shadow 0.3s;
+    backdrop-filter: blur(6px);
+    position: relative;
+    overflow: hidden;
+  }
+  .reveal-card:hover { transform: scale(1.025); box-shadow: 0 0 24px rgba(200,80,255,0.25); }
+  .reveal-card .icon { font-size: 1.8rem; transition: opacity 0.3s; }
+  .reveal-card .msg {
+    font-size: 0.95rem; line-height: 1.5; color: var(--text);
+    opacity: 0; position: absolute; padding: 0 1rem;
+    transition: opacity 0.4s 0.1s;
+    pointer-events: none;
+  }
+  .reveal-card.opened { background: rgba(140, 50, 200, 0.55); }
+  .reveal-card.opened .icon { opacity: 0; }
+  .reveal-card.opened .msg { opacity: 1; position: static; pointer-events: auto; }
+
+  /* ── Screen 4 — Envelope ── */
+  .envelope-title { font-family: 'Dancing Script', cursive; font-size: clamp(1.8rem,6vw,2.5rem); font-weight: 600; margin-bottom: 2rem; }
+  .envelope-wrap { position: relative; width: 180px; height: 130px; cursor: pointer; }
+  .env-body { width: 180px; height: 130px; background: linear-gradient(160deg, #f9f3e3, #ede0c0); border-radius: 10px; position: relative; overflow: visible; filter: drop-shadow(0 6px 24px rgba(0,0,0,0.4)); transition: transform 0.2s; }
+  .env-body:hover { transform: scale(1.05) translateY(-4px); }
+  .env-flap {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 0; width: 0;
+    border-left: 90px solid transparent;
+    border-right: 90px solid transparent;
+    border-top: 70px solid #e0ce9e;
+    z-index: 2;
+    transform-origin: top center;
+    transition: transform 0.5s ease;
+  }
+  .env-body.open .env-flap { transform: rotateX(180deg); }
+  .env-bottom-left { position: absolute; bottom: 0; left: 0; width: 0; height: 0; border-left: 90px solid #d4bc88; border-top: 65px solid transparent; }
+  .env-bottom-right { position: absolute; bottom: 0; right: 0; width: 0; height: 0; border-right: 90px solid #d4bc88; border-top: 65px solid transparent; }
+  .env-smile { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); font-size: 1.6rem; z-index: 3; }
+  .tap-open-btn {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: var(--pink);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-top: 1.8rem;
+    box-shadow: 0 0 28px var(--pink-glow);
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .tap-open-btn:hover { transform: scale(1.12); }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 18px var(--pink-glow)} 50%{box-shadow:0 0 40px var(--pink-glow)} }
+  .tap-open-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; letter-spacing: 0.05em; }
+
+  /* ── Screen 5 — Letter ── */
+  .letter-card {
+    background: linear-gradient(160deg, #fff8f2, #fdf0e8);
+    border-radius: 20px;
+    padding: 2rem 1.8rem;
+    width: min(380px,88vw);
+    color: #4a2c5e;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .cat-sticker { font-size: 3.8rem; margin-bottom: 0.8rem; animation: sway 3s ease-in-out infinite; }
+  @keyframes sway { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+  .letter-title { font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: #9b3fad; margin-bottom: 1rem; }
+  .letter-body { font-size: 0.93rem; line-height: 1.75; color: #5c3a70; }
+  .letter-sign { font-family: 'Dancing Script', cursive; font-size: 1.3rem; color: #c047a0; margin-top: 1.2rem; }
+  .sparkle { position: absolute; font-size: 1.2rem; animation: sparkleAnim 2s ease-in-out infinite; }
+  .sparkle:nth-child(2) { top: -12px; right: 20px; animation-delay: 0.4s; }
+  .sparkle:nth-child(3) { top: 50%; left: -14px; animation-delay: 0.8s; }
+  @keyframes sparkleAnim { 0%,100%{opacity:0.3;transform:scale(0.8) rotate(0deg)} 50%{opacity:1;transform:scale(1.2) rotate(20deg)} }
+
+  /* ── Transition fade ── */
+  @keyframes fadeIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+  .screen.active > * { animation: fadeIn 0.6s ease both; }
+  .screen.active > *:nth-child(2) { animation-delay: 0.1s; }
+  .screen.active > *:nth-child(3) { animation-delay: 0.2s; }
+  .screen.active > *:nth-child(4) { animation-delay: 0.3s; }
+  .screen.active > *:nth-child(5) { animation-delay: 0.4s; }
+
+  /* ── Floating hearts (decoration) ── */
+  .float-heart {
+    position: fixed;
+    font-size: 1.2rem;
+    animation: riseHeart 6s ease-in infinite;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes riseHeart {
+    0%   { opacity: 0; transform: translateY(0) scale(0.7); }
+    15%  { opacity: 0.8; }
+    85%  { opacity: 0.4; }
+    100% { opacity: 0; transform: translateY(-90vh) scale(1.1) rotate(20deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div id="stars"></div>
+
+<!-- Screen 1: Welcome -->
+<div class="screen active" id="s1">
+  <div class="ghost-wrap">
+    <div class="ghost">
+      <div class="eye l"></div>
+      <div class="eye r"></div>
+      <div class="cheek l"></div>
+      <div class="cheek r"></div>
+    </div>
+    <div class="hearts-float">💕</div>
+  </div>
+  <div class="welcome-title">Hey Vasuuu, cutiepie 🌸</div>
+  <div class="welcome-sub">Do you even know how cute you are?</div>
+  <button class="btn" onclick="startLoading()">let's check 🎃🌸</button>
+</div>
+
+<!-- Screen 2: Loading -->
+<div class="screen" id="s2">
+  <div class="loading-label">Measuring your cuteness… ⏳</div>
+  <div class="big-pct" id="pct-num">0%</div>
+  <div class="bar-wrap"><div class="bar-fill" id="bar"></div></div>
+</div>
+
+<!-- Screen 3: Reveal Cards -->
+<div class="screen" id="s3">
+  <div class="reveal-title">💖✨ Tap each one to reveal</div>
+  <div class="cards-wrap">
+    <div class="reveal-card" onclick="revealCard(this)">
+      <span class="icon">❤️</span>
+      <span class="msg">I messed up...and I'm really sorry for that 🥺</span>
+    </div>
+    <div class="reveal-card" onclick="revealCard(this)">
+      <span class="icon">❤️</span>
+      <span class="msg">Your smile alone can fix the worst day — and you have no idea 🌷...I promise I'll be better for you</span>
+    </div>
+    <div class="reveal-card" onclick="revealCard(this)">
+      <span class="icon">❤️</span>
+      <span class="msg">I'm genuinely so lucky to have you in my life. You're one of a kind 💫...Please forgive me...You mean so much to me 🥺🫂</span>
+    </div>
+  </div>
+  <button class="btn" onclick="goTo('s4')">See more →</button>
+</div>
+
+<!-- Screen 4: Envelope -->
+<div class="screen" id="s4">
+  <div class="envelope-title">A little note for you</div>
+  <div class="envelope-wrap" onclick="openEnvelope()">
+    <div class="env-body" id="env">
+      <div class="env-flap"></div>
+      <div class="env-bottom-left"></div>
+      <div class="env-bottom-right"></div>
+      <div class="env-smile">🫶</div>
+    </div>
+  </div>
+  <button class="tap-open-btn" onclick="openEnvelope()">🫶</button>
+  <div class="tap-open-label">Tap to open</div>
+</div>
+
+<!-- Screen 5: Letter -->
+<div class="screen" id="s5">
+  <div class="letter-card">
+    <span class="sparkle">✨</span>
+    <span class="sparkle">✨</span>
+    <div class="cat-sticker">🐱</div>
+    <div class="letter-title">I'm really sorry, my love 🥺</div>
+    <div class="letter-body">
+      I accidentally upset the most precious and adorable person in my life — you. 🥺<br><br>
+      Please forgive me if I hurt you or wasted even a little of your time or energy. I promise I didn't mean to 🥺💕<br><br>
+      You deserve nothing but happiness, softness, and all the good things this world has to offer. And I truly mean that from the bottom of my heart. 💕
+    </div>
+    <div class="letter-sign">Forever yours 🌸</div>
+  </div>
+  <button class="btn btn-ghost" onclick="goTo('s1')" style="margin-top:1.5rem;">Start over 🔄</button>
+</div>
+
+<script>
+/* ── Generate stars ── */
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 130; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const size = Math.random() * 2.5 + 0.8;
+  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*2.5+1.2).toFixed(1)}s;--delay:${(Math.random()*3).toFixed(1)}s;opacity:${(Math.random()*0.5+0.2).toFixed(1)}`;
+  starsEl.appendChild(s);
+}
+
+/* ── Floating hearts ── */
+function spawnHeart() {
+  const h = document.createElement('div');
+  h.className = 'float-heart';
+  h.textContent = ['💕','💖','💗','🌸','✨'][Math.floor(Math.random()*5)];
+  h.style.left = Math.random()*90 + '%';
+  h.style.bottom = '0';
+  h.style.animationDelay = '0s';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 6200);
+}
+setInterval(spawnHeart, 1800);
+
+/* ── Navigation ── */
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── Loading screen ── */
+function startLoading() {
+  goTo('s2');
+  const numEl = document.getElementById('pct-num');
+  const barEl = document.getElementById('bar');
+  let v = 0;
+  const target = 100;
+  barEl.style.width = '0%';
+  setTimeout(() => { barEl.style.width = '100%'; }, 50);
+  const tick = setInterval(() => {
+    v += Math.floor(Math.random() * 4) + 1;
+    if (v >= target) { v = target; clearInterval(tick); setTimeout(() => goTo('s3'), 600); }
+    numEl.textContent = v + '%';
+  }, 60);
+}
+
+/* ── Reveal cards ── */
+function revealCard(el) {
+  if (!el.classList.contains('opened')) {
+    el.classList.add('opened');
+    spawnHeart(); spawnHeart();
+  }
+}
+
+/* ── Open envelope ── */
+let envOpened = false;
+function openEnvelope() {
+  if (!envOpened) {
+    envOpened = true;
+    document.getElementById('env').classList.add('open');
+    setTimeout(() => goTo('s5'), 700);
+  }
+}
+</script>
+</body>
+</html>
